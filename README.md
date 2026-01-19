@@ -5,7 +5,7 @@ The Task Management System is a simple web-based application that allows users t
 
 ## Features
 - Add new tasks to your task list  
-- Mark tasks as completed (strike-through effect)  
+- Mark tasks as completed (strike-through effect) 
 - Delete tasks individually  
 - Tasks are *saved automatically* using localStorage  
 - Clean and user-friendly interface  
