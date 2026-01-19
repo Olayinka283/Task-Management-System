@@ -1,50 +1,65 @@
-// Get references to input, button, and task list
+// ======== TASK MANAGEMENT SYSTEM WITH LOCALSTORAGE ========
+
+// Select DOM elements
 const taskInput = document.getElementById("task-input");
 const addBtn = document.getElementById("add-btn");
 const taskList = document.getElementById("task-list");
 
-// Function to add a new task
-addBtn.addEventListener("click", function() {
-  const taskText = taskInput.value.trim();
-  if (taskText !== "") {
-    // Create a new list item
-    const li = document.createElement("li");
-    li.textContent = taskText;
-    li.className = "task-item";
+// ======== LOAD TASKS FROM LOCALSTORAGE ON PAGE LOAD ========
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+renderTasks();
 
-    // Add Complete button
-    const completeBtn = document.createElement("button");
-    completeBtn.textContent = "Complete";
-    completeBtn.className = "complete-btn";
-    li.appendChild(completeBtn);
+// ======== ADD TASK ========
+addBtn.addEventListener("click", () => {
+    const taskText = taskInput.value.trim();
+    if (taskText === "") return alert("Please enter a task.");
 
-    // Add Delete button
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
-    deleteBtn.className = "delete-btn";
-    li.appendChild(deleteBtn);
+    const task = {
+        id: Date.now(),
+        description: taskText,
+        completed: false
+    };
 
-    // Add the new task to the list
-    taskList.appendChild(li);
-
-    // Clear input field
+    tasks.push(task);
+    saveTasks();
+    renderTasks();
     taskInput.value = "";
-  }
 });
 
-// Event delegation for Complete and Delete buttons
-taskList.addEventListener("click", function(e) {
-  const target = e.target;
+// ======== SAVE TASKS TO LOCALSTORAGE ========
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
-  // Complete button clicked
-  if (target.classList.contains("complete-btn")) {
-    const taskItem = target.parentElement;
-    taskItem.style.textDecoration = "line-through"; // Strike-through task
-  }
+// ======== RENDER TASKS ========
+function renderTasks() {
+    taskList.innerHTML = "";
+    tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.className = task.completed ? "completed" : "";
 
-  // Delete button clicked
-  if (target.classList.contains("delete-btn")) {
-    const taskItem = target.parentElement;
-    taskList.removeChild(taskItem); // Remove task from list
-  }
-});
+        li.innerHTML = `
+            <span>${task.description}</span>
+            <div>
+                <button class="complete-btn">✔</button>
+                <button class="delete-btn">✖</button>
+            </div>
+        `;
+
+        // MARK AS COMPLETED
+        li.querySelector(".complete-btn").addEventListener("click", () => {
+            task.completed = !task.completed;
+            saveTasks();
+            renderTasks();
+        });
+
+        // DELETE TASK
+        li.querySelector(".delete-btn").addEventListener("click", () => {
+            tasks = tasks.filter(t => t.id !== task.id);
+            saveTasks();
+            renderTasks();
+        });
+
+        taskList.appendChild(li);
+    });
+}
